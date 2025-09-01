@@ -1,49 +1,243 @@
-import React, { useState, useEffect } from 'react';
+import { Code, Eye, Monitor, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import CodeEditor from './components/CodeEditor';
+import LiveRenderer from './components/LiveRenderer';
+import NewProjectModal from './components/NewProjectModal';
 
-interface ProgressBarData {
-  id: number;
-  progress: number;
-}
-
-function ProgressBar({ progress }: { progress: number }): React.ReactElement {
-  return (
-    <div className="outer">
-      <div className="inner" style={{ width: `${progress}%` }}></div>
-    </div>
-  );
-}
+import ProjectTable from './components/ProjectTable';
+import type { Project } from './types/project';
+import {
+  createNewProject,
+  deleteProject,
+  loadProjects,
+  saveProjects,
+  updateProject,
+} from './utils/projectUtils';
 
 export default function App() {
-  const [progressBars, setProgressBars] = useState<ProgressBarData[]>([]);
-  const [nextId, setNextId] = useState(1);
-
-  const addProgressBar = () => {
-    const id = nextId;
-    setNextId(id + 1);
-    const newBar: ProgressBarData = { id, progress: 0 };
-    setProgressBars(prev => [...prev, newBar]);
-  };
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<
+    'all' | 'code-only' | 'preview-only'
+  >('all');
 
   useEffect(() => {
-    const hasZero = progressBars.some(bar => bar.progress === 0);
-    if (hasZero) {
-      setProgressBars(prev =>
-        prev.map(bar => (bar.progress === 0 ? { ...bar, progress: 100 } : bar))
+    const initializeProjects = async () => {
+      const loadedProjects = await loadProjects();
+      setProjects(loadedProjects);
+    };
+
+    initializeProjects();
+    // Don't auto-select any project - let user choose from main page
+  }, []);
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      saveProjects();
+    }
+  }, [projects]);
+
+  const handleSelectProject = (project: Project) => {
+    setSelectedProject(project);
+  };
+
+  const handleCreateProject = async (
+    name: string,
+    type: 'tsx' | 'jsx',
+    customId?: number
+  ) => {
+    try {
+      const newProject = await createNewProject(name, type, customId);
+      const updatedProjects = await loadProjects(); // Reload from registry
+      setProjects(updatedProjects);
+      setSelectedProject(newProject);
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to create project'
       );
     }
-  }, [progressBars]);
+  };
 
-  const clearAll = () => {
-    setProgressBars([]);
+  const handleDeleteProject = async (projectId: string) => {
+    if (confirm('Are you sure you want to delete this project?')) {
+      try {
+        await deleteProject(projectId);
+        // Update local state after successful deletion
+        setProjects(prev => prev.filter(p => p.id !== projectId));
+        if (selectedProject?.id === projectId) {
+          const remainingProjects = projects.filter(p => p.id !== projectId);
+          setSelectedProject(
+            remainingProjects.length > 0 ? remainingProjects[0] || null : null
+          );
+        }
+      } catch (error) {
+        alert(
+          error instanceof Error ? error.message : 'Failed to delete project'
+        );
+      }
+    }
+  };
+
+  const handleCodeChange = async (
+    field: 'tsxContent' | 'cssContent',
+    value: string
+  ) => {
+    if (!selectedProject) return;
+
+    const updatedProject = {
+      ...selectedProject,
+      [field]: value,
+      updatedAt: new Date(),
+    };
+
+    // Update the UI immediately for responsiveness
+    setSelectedProject(updatedProject);
+    setProjects(prev =>
+      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+    );
+
+    // Save to file system
+    try {
+      await updateProject(updatedProject);
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+    }
+  };
+
+  const renderMainContent = () => {
+    if (!selectedProject) {
+      return (
+        <div className="main-content">
+          <div className="header">
+            <h1>Frontend Challenges</h1>
+            <button
+              className="btn-primary"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Plus size={16} />
+              New Project
+            </button>
+          </div>
+
+          <ProjectTable
+            projects={projects}
+            selectedProject={selectedProject}
+            onSelectProject={handleSelectProject}
+            onDeleteProject={handleDeleteProject}
+          />
+        </div>
+      );
+    }
+
+    const showCodeEditors = viewMode === 'all' || viewMode === 'code-only';
+    const showPreview = viewMode === 'all' || viewMode === 'preview-only';
+
+    return (
+      <div className="main-content">
+        <div className="header">
+          <div className="header-left">
+            <button
+              className="btn-secondary"
+              onClick={() => setSelectedProject(null)}
+            >
+              ← Back to Projects
+            </button>
+            <h1>{selectedProject.name}</h1>
+          </div>
+
+          <div className="header-right">
+            <div className="view-toggles">
+              <button
+                className={`toggle-btn ${viewMode === 'all' ? 'active' : ''}`}
+                onClick={() => setViewMode('all')}
+                title="Show all panels"
+              >
+                <Monitor size={16} />
+                All
+              </button>
+              <button
+                className={`toggle-btn ${viewMode === 'code-only' ? 'active' : ''}`}
+                onClick={() => setViewMode('code-only')}
+                title="Show code editors only"
+              >
+                <Code size={16} />
+                Code
+              </button>
+              <button
+                className={`toggle-btn ${viewMode === 'preview-only' ? 'active' : ''}`}
+                onClick={() => setViewMode('preview-only')}
+                title="Show preview only"
+              >
+                <Eye size={16} />
+                Preview
+              </button>
+            </div>
+
+            <button
+              className="btn-primary"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Plus size={16} />
+              New Project
+            </button>
+          </div>
+        </div>
+
+        <div className="editor-layout">
+          <PanelGroup direction="horizontal" className="panel-group">
+            {showCodeEditors && (
+              <>
+                <Panel defaultSize={33} minSize={20}>
+                  <CodeEditor
+                    value={selectedProject.tsxContent}
+                    language="typescript"
+                    onChange={value => handleCodeChange('tsxContent', value)}
+                    title={`Component (${selectedProject.type})`}
+                  />
+                </Panel>
+                <PanelResizeHandle className="panel-resize-handle" />
+                <Panel defaultSize={33} minSize={20}>
+                  <CodeEditor
+                    value={selectedProject.cssContent}
+                    language="css"
+                    onChange={value => handleCodeChange('cssContent', value)}
+                    title="Styles (CSS)"
+                  />
+                </Panel>
+                {showPreview && (
+                  <PanelResizeHandle className="panel-resize-handle" />
+                )}
+              </>
+            )}
+
+            {showPreview && (
+              <Panel defaultSize={showCodeEditors ? 34 : 100} minSize={20}>
+                <div className="preview-panel">
+                  <div className="editor-header">
+                    <h3>Live Preview</h3>
+                    <span className="language-badge">PREVIEW</span>
+                  </div>
+                  <LiveRenderer project={selectedProject} />
+                </div>
+              </Panel>
+            )}
+          </PanelGroup>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div>
-      <button onClick={addProgressBar}>Add</button>
-      <button onClick={clearAll}>Clear</button>
-      {progressBars.map(bar => (
-        <ProgressBar key={bar.id} progress={bar.progress} />
-      ))}
+    <div className="app">
+      {renderMainContent()}
+
+      <NewProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreateProject={handleCreateProject}
+      />
     </div>
   );
 }

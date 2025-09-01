@@ -1,0 +1,25 @@
+body {
+  font-family: sans-serif;
+}
+
+.outer {
+  box-sizing: border-box;
+  border: 3px solid black;
+  border-radius: 1rem;
+  width: 32rem;
+  height: 3rem;
+  position: relative;
+  margin: 1rem;
+}
+
+.inner {
+  box-sizing: border-box;
+  border-radius: calc(1rem - 3px);
+  background: black;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  transition: width 2s ease-out;
+}
