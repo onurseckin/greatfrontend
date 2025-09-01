@@ -1,5 +1,14 @@
 import Editor, { type BeforeMount } from '@monaco-editor/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+
+// Type declarations for monaco-vim
+interface VimMode {
+  dispose?: () => void;
+}
+
+// Import with type assertion to avoid TypeScript errors
+// @ts-expect-error: monaco-vim has no TypeScript definitions
+import { initVimMode } from 'monaco-vim';
 
 interface CodeEditorProps {
   value: string;
@@ -15,10 +24,24 @@ export default function CodeEditor({
   title,
 }: CodeEditorProps) {
   const editorRef = useRef<unknown>(null);
+  const vimModeRef = useRef<VimMode | null>(null);
 
   const handleEditorChange = (value: string | undefined) => {
     onChange(value || '');
   };
+
+  // Cleanup Vim mode on unmount
+  useEffect(() => {
+    return () => {
+      if (vimModeRef.current) {
+        try {
+          vimModeRef.current.dispose?.();
+        } catch (error) {
+          console.warn('Failed to dispose Vim mode:', error);
+        }
+      }
+    };
+  }, []);
 
   const getLanguageForMonaco = () => {
     if (language === 'typescript') return 'typescript';
@@ -63,10 +86,23 @@ export default function CodeEditor({
   };
 
   return (
-    <div className="code-editor">
+    <div className="code-editor" data-editor={language}>
       <div className="editor-header">
         <h3>{title}</h3>
-        <span className="language-badge">{language.toUpperCase()}</span>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <span className="language-badge">{language.toUpperCase()}</span>
+          <span
+            className="language-badge vim-status"
+            style={{
+              background: '#1e40af',
+              color: '#dbeafe',
+              fontSize: '0.7rem',
+              padding: '0.2rem 0.4rem',
+            }}
+          >
+            VIM
+          </span>
+        </div>
       </div>
       <div className="editor-container">
         <Editor
@@ -84,6 +120,21 @@ export default function CodeEditor({
               if (model) {
                 monaco.editor.setModelLanguage(model, 'typescript');
               }
+            }
+
+            // Initialize Vim mode
+            try {
+              const statusElement = document.querySelector(
+                `[data-editor="${language}"] .vim-status`
+              );
+              if (statusElement) {
+                vimModeRef.current = initVimMode(
+                  editor,
+                  statusElement as HTMLElement
+                );
+              }
+            } catch (error) {
+              console.warn('Failed to initialize Vim mode:', error);
             }
           }}
           theme="vs-dark"

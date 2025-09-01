@@ -95,6 +95,9 @@ export default function App(): React.ReactElement {
     <div>
       <h1>Hello, ${name}!</h1>
       <p>Start building your component here.</p>
+      <button onClick={() => alert('Hello from ${name}!')}>
+        Click me!
+      </button>
     </div>
   );
 }`
@@ -105,6 +108,9 @@ export default function App() {
     <div>
       <h1>Hello, ${name}!</h1>
       <p>Start building your component here.</p>
+      <button onClick={() => alert('Hello from ${name}!')}>
+        Click me!
+      </button>
     </div>
   );
 }`;
@@ -116,6 +122,9 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 20px;
+  background-color: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
 }
 
 div {
@@ -124,11 +133,25 @@ div {
 }
 
 h1 {
-  color: #333;
+  color: #60a5fa;
 }
 
 p {
-  color: #666;
+  color: #cbd5e1;
+}
+
+button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #2563eb;
 }`;
 };
 
