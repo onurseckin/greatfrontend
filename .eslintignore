@@ -1,0 +1,9 @@
+node_modules/
+**/node_modules/**
+dist/
+**/dist/**
+coverage/
+*.config.js
+*.config.ts
+vite.config.ts
+apps/**/vite.config.ts

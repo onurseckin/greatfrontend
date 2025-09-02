@@ -1,0 +1,43 @@
+{
+  "name": "frontend",
+  "sourceRoot": "apps/frontend/src",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx vite",
+        "cwd": "apps/frontend"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/apps/frontend/dist"],
+      "options": {
+        "command": "bunx vite build",
+        "cwd": "apps/frontend"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun server.ts",
+        "cwd": "apps/frontend"
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx vite preview",
+        "cwd": "apps/frontend"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx eslint . --ext .ts,.tsx",
+        "cwd": "apps/frontend"
+      }
+    }
+  }
+}
+

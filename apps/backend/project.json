@@ -1,0 +1,36 @@
+{
+  "name": "backend",
+  "sourceRoot": "apps/backend/src",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun --hot src/main.ts",
+        "cwd": "apps/backend"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/apps/backend/dist"],
+      "options": {
+        "command": "bun build src/main.ts --target bun --outdir dist --external @nestjs/* --external reflect-metadata --external rxjs",
+        "cwd": "apps/backend"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun dist/main.js",
+        "cwd": "apps/backend"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx eslint . --ext .ts",
+        "cwd": "apps/backend"
+      }
+    }
+  }
+}
+

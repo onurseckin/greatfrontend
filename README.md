@@ -1,207 +1,229 @@
-# React + Vite + TypeScript + Bun
+# GreatFrontend (Nx + Bun)
 
-A modern React application setup with Vite, TypeScript support, Bun package manager, and integrated ESLint + Prettier configuration.
+A modern full-stack development environment with React frontend and NestJS API, all powered by Bun.
 
-## Features
+## 🏗️ Architecture
 
-- ⚡ **Vite** - Fast build tool and dev server
-- ⚛️ **React 19** - Latest React with concurrent features
-- 🟦 **TypeScript** - Full TypeScript support with strict configuration
-- 🐰 **Bun** - Fast JavaScript runtime and package manager
-- 🎯 **ESLint** - Code linting with React and TypeScript rules
-- 💅 **Prettier** - Code formatting (integrated with ESLint)
-- 📦 **Latest versions** - All packages updated to their latest versions
+**Monorepo Structure:**
 
-## Getting Started
+- `apps/client` — React + Vite frontend (port 5173)
+- `apps/api` — NestJS backend (port 3000)
+- `scripts/` — Utility scripts (cleaner, etc.)
+
+**Technology Stack:**
+
+- **Runtime**: Bun (replaces Node.js)
+- **Frontend**: React 19 + Vite + TypeScript
+- **Backend**: NestJS + SQLite (bun:sqlite)
+- **Monorepo**: Nx for workspace management
+- **Database**: SQLite with DATETIME timestamps
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) installed on your system
+```bash
+# Install Bun (if not already installed)
+curl -fsSL https://bun.sh/install | bash
+
+# Optional: Docker for containerized development
+# Install Docker Desktop from https://docker.com
+```
 
 ### Installation
 
 ```bash
-# Install dependencies
+# Clone and install dependencies
 bun install
 ```
 
-### Development
+## 🔄 Development Workflows
+
+### Option 1: Docker Development (Recommended)
+
+**For Active Development (with logs visible):**
 
 ```bash
-# Start development server
-bun run dev
+bun dev                 # Start both API + Client with logs
+# Press Ctrl+C to stop
 ```
 
-The development server will start at `http://localhost:3000`
-
-### Building
+**For Background Development:**
 
 ```bash
-# Build for production (with TypeScript checking)
-bun run build
-
-# Build for production (JavaScript only, no TypeScript checking)
-bun run build:js
+bun start               # Start in background (detached)
+bun logs                # View logs when needed
+bun stop                # Stop all services
 ```
 
-### Linting
+**Database Setup (Docker):**
 
 ```bash
-# Run ESLint (includes Prettier formatting)
-bun run lint
-
-# Auto-fix linting issues
-bun run lint -- --fix
+bun migrate             # Run database migrations
+bun ingest              # Import sample projects (optional)
 ```
 
-### Preview Production Build
+### Option 2: Local Development (No Docker)
+
+**Start Both Services:**
 
 ```bash
-# Preview the production build locally
-bun run preview
+bun dev:local           # API (3000) + Client (5173) in parallel
 ```
 
-## Project Structure
+**Start Individual Services:**
 
-```
-src/
-├── components/     # React components
-├── hooks/         # Custom React hooks
-├── utils/         # Utility functions
-├── types/         # TypeScript type definitions
-├── App.tsx        # Main App component (TypeScript)
-├── App.js         # Main App component (JavaScript)
-├── main.tsx       # Entry point (TypeScript)
-├── main.js        # Entry point (JavaScript)
-└── index.css      # Global styles
+```bash
+bun dev:api             # Just API server (port 3000)
+bun dev:client          # Just Client dev server (port 5173)
 ```
 
-## TypeScript vs JavaScript
+**Database Setup (Local):**
 
-This setup supports both TypeScript and JavaScript:
+```bash
+bun migrate:local       # Run database migrations
+bun ingest:local        # Import sample projects (optional)
+```
 
-### Using TypeScript (default)
+## 📊 When to Use Each Approach
 
-- Entry point: `src/main.tsx`
-- App component: `src/App.tsx`
-- Full type checking and IntelliSense support
+| Scenario               | Recommended Command      | Why                                      |
+| ---------------------- | ------------------------ | ---------------------------------------- |
+| **Active Development** | `bun dev`                | See logs, easy debugging, Ctrl+C to stop |
+| **Background Testing** | `bun start` + `bun logs` | Frees terminal, services persist         |
+| **Local Development**  | `bun dev:local`          | No Docker overhead, direct access        |
+| **API Only Testing**   | `bun dev:api`            | Backend development focus                |
+| **Frontend Only**      | `bun dev:client`         | UI development with mock data            |
 
-### Using JavaScript
+## 🏭 Production Builds
 
-- Entry point: `src/main.js`
-- App component: `src/App.js`
-- No type checking, pure JavaScript
+### Local Production Build
 
-To switch between TypeScript and JavaScript:
+```bash
+bun build:local         # Build both apps for production
+bun start:local         # Start production servers locally
+```
 
-1. Update the script import in `index.html`:
-   - For TypeScript: `<script type="module" src="/src/main.tsx"></script>`
-   - For JavaScript: `<script type="module" src="/src/main.js"></script>`
+### Preview Built Client
 
-2. Update the build script in `package.json`:
-   - For TypeScript: `"build": "tsc && vite build"`
-   - For JavaScript: `"build": "vite build"`
+```bash
+bun preview:local       # Preview production client build
+```
 
-## Configuration
+## 🧹 Maintenance & Cleanup
 
-### Modern ESM Configuration
+### Clean Everything & Restart Fresh
 
-The project uses modern ES modules (ESM) with the latest ESLint flat config format:
+```bash
+bun run clean           # Nuclear option: clean everything + reinstall
+# or
+bun run cleaner         # Same as above (alias)
+```
 
-- **`eslint.config.mjs`** - Modern flat configuration with ESM syntax
-- **`.prettierrc.json`** - Prettier configuration for editor integration
-- **`vite.config.ts`** - Vite configuration with TypeScript
+**What gets cleaned:**
 
-**ESLint config features:**
+- All build outputs (`dist/`, `out/`, `build/`)
+- Node modules and lock files
+- TypeScript build cache (`*.tsbuildinfo`)
+- ESLint cache (`.eslintcache`)
+- Development database files
+- Debug output files
+- NX cache
 
-- Loose configuration with minimal restrictions
-- React and TypeScript support
-- Prettier integration for consistent formatting
-- Single quotes, semicolons required, 2-space indentation
-- Modern flat config format for better performance
-- Dual Prettier config (ESLint + editor) for consistency
+**What happens after cleaning:**
 
-### TypeScript
+1. Removes all artifacts and dependencies
+2. Reinstalls fresh dependencies with `bun install --force`
+3. Ready for clean development start
 
-TypeScript is configured for:
+## 🗄️ Database Information
 
-- React JSX transform (no React import needed)
-- Strict type checking
-- Path mapping with `@/*` alias
-- Modern ESNext features
-- Full ESM support
+**Location & Setup:**
 
-### Vite
+- SQLite file: `apps/api/data/app.db`
+- Docker bind mount: `./data/sqlite` ↔ `/app/apps/api/data`
+- Same database used for both local and Docker development
 
-Vite is configured for:
+**Schema:**
 
-- React plugin support
-- Development server on port 3000
-- Source maps in production
-- Optimized build output
-- Latest Vite 7.1.3 with full ESM support
+- Single consolidated migration (`001_init.sql`)
+- `project_full` table with DATETIME timestamps
+- Proper type alignment with frontend (no conversion needed)
 
-## Scripts
+## 🔧 Type System & Architecture
 
-- `bun run dev` - Start development server
-- `bun run build` - Build for production (with TypeScript)
-- `bun run build:js` - Build for production (JavaScript only)
-- `bun run lint` - Run ESLint
-- `bun run preview` - Preview production build
+**Consistent Types Throughout Stack:**
 
-## Technologies Used
+- **Project IDs**: `number` (database → API → client)
+- **Timestamps**: `DATETIME` in DB → `Date` objects in client
+- **No Type Conversion**: Direct alignment, no conversion functions needed
+- **TypeScript**: Strict mode enabled with proper type safety
 
-- **React 19.1.1** - UI library
-- **Vite 7.1.3** - Latest build tool with full ESM support
-- **TypeScript 5.9.2** - Type checking
-- **Bun** - Runtime and package manager
-- **ESLint 9.34.0** - Linting with modern ESM config
-- **Prettier 3.6.2** - Code formatting with ESM config
+**Development Features:**
 
-## Modern ESM Setup
+- **Hot Reload**: Both API and client support hot reloading
+- **Live Preview**: Real-time React component rendering
+- **Code Editor**: Monaco editor with TypeScript support
+- **Local Storage**: Unsaved edits cached until you click Save
+- **Debug Output**: Final HTML captured to `debug/` folder
 
-This project uses modern ES modules throughout:
+## 🚨 Troubleshooting
 
-- **Configuration files**: All config files use `.mjs` extension with ESM syntax
-- **Package.json**: `"type": "module"` for full ESM support
-- **Latest packages**: All dependencies updated to their latest versions
-- **Performance**: ESM provides better tree-shaking and performance
+### Port Conflicts
 
-## Troubleshooting
+```bash
+# If ports 3000 or 5173 are busy:
+bun stop                # Stop Docker services
+# or kill local processes using those ports
+```
 
-### ESLint Diagnostics Issues
+### Database Issues
 
-If you encounter "eslint request diagnostics failed" errors in AstroNvim:
+```bash
+# Reset database completely:
+bun run clean           # Removes database files
+bun migrate             # Recreate fresh database
+```
 
-1. The project uses modern `eslint.config.mjs` flat configuration
-2. All config files are in ESM format for consistency
-3. Run `bun run lint -- --fix` to auto-format your code
+### Dependency Issues
 
-### Format-on-Save Issues
+```bash
+# Fresh install:
+bun run clean           # Removes node_modules + reinstalls
+```
 
-If your editor's format-on-save is changing quotes back to double quotes:
+### Docker Issues
 
-1. **Check your editor settings** - Ensure Prettier is using the project config
-2. **Restart your editor** - Sometimes config changes need a restart
-3. **Use the dual config** - Both `.prettierrc.json` and ESLint rules are now in sync
-4. **Run manually** - Use `bun run lint -- --fix` to format with ESLint
+```bash
+# Reset Docker environment:
+bun stop
+docker compose down --volumes
+bun start
+```
 
-### Build Issues
+## 📚 Additional Documentation
 
-If you encounter build failures:
+**App-Specific Details:**
 
-- All packages are at their latest versions
-- Clear cache with `rm -rf node_modules/.vite` if needed
-- Use `bun run build:js` for JavaScript-only builds
-- Vite 7.1.3 provides excellent stability and performance
+- [`apps/client/README.md`](apps/client/README.md) — Frontend architecture & features
+- [`apps/api/README.md`](apps/api/README.md) — Backend API endpoints & database
 
-## Development Tips
+**Key Files:**
 
-1. **Hot Module Replacement**: Vite provides instant updates during development
-2. **Type Safety**: Use TypeScript for better development experience
-3. **Code Formatting**: ESLint will automatically format your code with Prettier rules
-4. **Fast Refresh**: React components will hot reload without losing state
+- `package.json` — All available scripts and dependencies
+- `nx.json` — Nx workspace configuration
+- `docker-compose.yml` — Container orchestration
+- `tsconfig.base.json` — TypeScript configuration
+- `eslint.config.mjs` — Linting rules
 
-## License
+## 🎯 Development Tips
 
-This project is private and for personal use.
+1. **Use `bun dev`** for active development (you'll want to see logs)
+2. **Use `bun start`** when you need services running but want your terminal free
+3. **Use `bun dev:local`** if you prefer no Docker overhead
+4. **Run `bun run clean`** when things get weird (nuclear reset)
+5. **Check `bun logs`** if background services aren't working as expected
+
+---
+
+**Happy coding! 🚀**

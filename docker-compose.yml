@@ -1,0 +1,45 @@
+# Docker Compose for Nx Monorepo Development
+services:
+  backend:
+    build:
+      context: .
+      target: backend-dev
+    image: greatfrontend/backend-dev
+    container_name: greatfrontend-backend
+    ports:
+      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./nx.json:/app/nx.json
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+    environment:
+      - NODE_ENV=development
+      - BACKEND_PORT=${BACKEND_PORT:-3000}
+      - DATABASE_URL=${DATABASE_URL}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      target: frontend-dev
+    image: greatfrontend/frontend-dev
+    container_name: greatfrontend-frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:${FRONTEND_PORT:-5173}"
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./nx.json:/app/nx.json
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://backend:${BACKEND_PORT:-3000}
+      - VITE_API_PROXY_TARGET=http://backend:${BACKEND_PORT:-3000}
+      - CHOKIDAR_USEPOLLING=true
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+    depends_on:
+      - backend
+    restart: unless-stopped

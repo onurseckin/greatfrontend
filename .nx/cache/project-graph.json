@@ -1,0 +1,169 @@
+{
+  "nodes": {
+    "frontend": {
+      "name": "frontend",
+      "type": "lib",
+      "data": {
+        "root": "apps/frontend",
+        "name": "frontend",
+        "targets": {
+          "dev": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "dev"
+            },
+            "configurations": {}
+          },
+          "build": {
+            "executor": "nx:run-commands",
+            "dependsOn": [
+              "^build"
+            ],
+            "inputs": [
+              "production",
+              "^production"
+            ],
+            "outputs": [
+              "{workspaceRoot}/apps/frontend/dist"
+            ],
+            "options": {
+              "command": "bunx vite build",
+              "cwd": "apps/frontend"
+            },
+            "configurations": {}
+          },
+          "start": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "bun server.ts",
+              "cwd": "apps/frontend"
+            },
+            "configurations": {}
+          },
+          "preview": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "bunx vite preview",
+              "cwd": "apps/frontend"
+            },
+            "configurations": {}
+          },
+          "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "bunx eslint . --ext .ts,.tsx",
+              "cwd": "apps/frontend"
+            },
+            "configurations": {}
+          },
+          "serve": {
+            "executor": "nx:run-commands",
+            "dependsOn": [
+              "^build"
+            ],
+            "options": {
+              "command": "bunx vite",
+              "cwd": "apps/frontend"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "apps/frontend/src",
+        "implicitDependencies": [],
+        "tags": []
+      }
+    },
+    "backend": {
+      "name": "backend",
+      "type": "lib",
+      "data": {
+        "root": "apps/backend",
+        "name": "backend",
+        "targets": {
+          "dev": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "dev"
+            },
+            "configurations": {}
+          },
+          "build": {
+            "executor": "nx:run-commands",
+            "dependsOn": [
+              "^build"
+            ],
+            "inputs": [
+              "production",
+              "^production"
+            ],
+            "outputs": [
+              "{workspaceRoot}/apps/backend/dist"
+            ],
+            "options": {
+              "command": "bun build src/main.ts --target bun --outdir dist --external @nestjs/* --external reflect-metadata --external rxjs",
+              "cwd": "apps/backend"
+            },
+            "configurations": {}
+          },
+          "start": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "bun dist/main.js",
+              "cwd": "apps/backend"
+            },
+            "configurations": {}
+          },
+          "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "bunx eslint . --ext .ts",
+              "cwd": "apps/backend"
+            },
+            "configurations": {}
+          },
+          "db:generate": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "db:generate"
+            },
+            "configurations": {}
+          },
+          "db:push": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "db:push"
+            },
+            "configurations": {}
+          },
+          "db:studio": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "db:studio"
+            },
+            "configurations": {}
+          },
+          "serve": {
+            "executor": "nx:run-commands",
+            "dependsOn": [
+              "^build"
+            ],
+            "options": {
+              "command": "bun --hot src/main.ts",
+              "cwd": "apps/backend"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "apps/backend/src",
+        "implicitDependencies": [],
+        "tags": []
+      }
+    }
+  },
+  "externalNodes": {},
+  "dependencies": {
+    "frontend": [],
+    "backend": []
+  },
+  "version": "6.0"
+}

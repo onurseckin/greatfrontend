@@ -1,0 +1,8 @@
+[2m> [22mbunx vite --config apps/client/vite.config.ts
+
+
+  [32m[1mVITE[22m v7.1.3[39m  [2mready in [0m[1m417[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.124:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.75:[1m5173[22m/[39m

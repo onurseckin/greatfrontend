@@ -1,0 +1,28 @@
+[2m> [22mbun --hot src/main.ts
+
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +6ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDatabaseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProjectModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mFilesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTransformModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mProjectDirectController {/api/projects}:[39m[38;5;3m +2ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/projects/list, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/projects/create, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/projects/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/projects/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/projects/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mFilesController {/api/files}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/files/read, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/files/write, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTransformController {/api/transform}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/transform, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +1ms[39m
+[31m[Nest] 79754  - [39m09/01/2025, 9:26:06 PM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: Failed to start server. Is port 3000 in use?[39m[38;5;3m +7ms[39m
+[0m[31mServer failed to start [0m[31merror[0m[2m:[0m [1mFailed to start server. Is port 3000 in use?[0m
+ syscall[0m[2m:[0m [0m[32m"listen"[0m[0m[2m,[0m
+   errno[0m[2m:[0m [0m[33m0[0m[0m[2m,[0m
+    code[0m[2m:[0m [32m"EADDRINUSE"[0m
+
+[0m      [2mat [0mserve[2m ([0m[0m[36mnode:_http_server[0m[2m:[0m[33m554[0m[2m:[33m41[0m[2m)[0m
+[0m

@@ -3,45 +3,35 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"bun --hot ./index.ts\" \"vite\"",
-    "dev:api": "bun --hot ./index.ts",
-    "dev:frontend": "vite",
-    "build": "vite build",
-    "lint": "eslint . --ext ts,tsx,js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "dev": "bunx nx run-many -t serve -p frontend,backend --parallel=2",
+    "start": "bunx nx run-many -t start -p frontend,backend --parallel=2",
+    "build": "bunx nx run-many -t build -p frontend,backend --parallel=2",
+    "preview": "bunx nx preview frontend",
+    "db:generate": "cd apps/backend && bunx drizzle-kit generate",
+    "db:push": "cd apps/backend && bunx drizzle-kit push",
+    "db:studio": "cd apps/backend && bunx drizzle-kit studio",
+    "dev:docker": "docker compose up --build",
+    "dev:frontend": "bunx nx serve frontend",
+    "dev:backend": "bunx nx serve backend",
+    "start:docker": "docker compose up --build -d",
+    "build:frontend": "bunx nx build frontend",
+    "build:backend": "bunx nx build backend",
+    "stop:docker": "docker compose down",
+    "start:frontend": "bunx nx start frontend",
+    "start:backend": "bunx nx start backend",
+
+    "logs:docker": "docker compose logs -f",
+    "lint": "bunx nx run-many -t lint --all",
+    "clean": "bun scripts/cleaner.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "@types/bun": "latest",
-    "@vitejs/plugin-react": "^5.0.2",
-    "concurrently": "^9.2.1",
-    "eslint-config-prettier": "^10.1.8",
     "globals": "^16.3.0",
-    "vite": "^7.1.3"
-  },
-  "peerDependencies": {
+    "nx": "^18.3.3",
+    "@nx/workspace": "^18.3.3",
+    "@nx/js": "^18.3.3",
     "typescript": "^5.9.2"
   },
-  "dependencies": {
-    "@babel/core": "^7.28.3",
-    "@babel/preset-react": "^7.27.1",
-    "@babel/preset-typescript": "^7.27.1",
-    "@monaco-editor/react": "^4.7.0",
-    "@types/react": "^19.1.12",
-    "@types/react-dom": "^19.1.9",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
-    "eslint": "^9.34.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "lucide-react": "^0.542.0",
-    "monaco-editor": "^0.52.2",
-    "monaco-vim": "^0.4.2",
-    "prettier": "^3.6.2",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-resizable-panels": "^3.0.5",
-    "react-router-dom": "^7.8.2"
-  }
+  "dependencies": {}
 }
