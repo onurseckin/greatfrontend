@@ -4,13 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot src/main.ts",
+    "kill-port": "bun scripts/kill-port.ts",
+    "dev": "bun run kill-port -- 3000 && bun --hot src/main.ts",
     "build": "bun build src/main.ts --target bun --outdir dist --external @nestjs/* --external reflect-metadata --external rxjs",
-    "start": "bun dist/main.js",
-    "lint": "bunx eslint . --ext .ts",
-    "db:generate": "bunx drizzle-kit generate",
-    "db:push": "bunx drizzle-kit push",
-    "db:studio": "bunx drizzle-kit studio"
+    "start": "bun run kill-port -- 3000 && bun dist/main.js",
+    "lint": "bun eslint . --ext .ts",
+    "db:generate": "bun drizzle-kit generate",
+    "db:push": "bun drizzle-kit push",
+    "db:studio": "bun drizzle-kit studio"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.20",

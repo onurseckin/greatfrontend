@@ -4,11 +4,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bunx vite --config vite.config.ts",
-    "build": "bunx vite build --config vite.config.ts",
-    "start": "bun server.ts",
-    "preview": "bunx vite preview --config vite.config.ts",
-    "lint": "bunx eslint . --ext .ts,.tsx"
+    "kill-port": "bun scripts/kill-port.ts",
+    "dev": "bun run kill-port -- 5173 && bun vite --config vite.config.ts",
+    "build": "bun vite build --config vite.config.ts",
+    "start": "bun run kill-port -- 5173 && bun server.ts",
+    "preview": "bun vite preview --config vite.config.ts",
+    "lint": "bun eslint . --ext .ts,.tsx"
   },
   "dependencies": {
     "@babel/core": "^7.28.3",
