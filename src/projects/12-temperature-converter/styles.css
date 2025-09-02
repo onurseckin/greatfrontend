@@ -1,0 +1,19 @@
+/* Styles for Temperature Converter */
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  width: 50vw;
+  gap: 1rem; 
+}
+
+#c, #f {
+  height: 2rem;
+}

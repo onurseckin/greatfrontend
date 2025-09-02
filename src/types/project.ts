@@ -2,6 +2,7 @@ export interface ProjectMeta {
   projectId: number;
   name: string;
   type: 'tsx' | 'jsx';
+  folderName: string;
   createdAt: string;
   updatedAt: string;
   description?: string;

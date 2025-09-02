@@ -1,6 +1,7 @@
-import { Code, Eye, Monitor, Plus } from 'lucide-react';
+import { Code, Eye, Monitor, Plus, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import CodeEditor from './components/CodeEditor';
 import LiveRenderer from './components/LiveRenderer';
 import NewProjectModal from './components/NewProjectModal';
@@ -15,7 +16,10 @@ import {
   updateProject,
 } from './utils/projectUtils';
 
-export default function App() {
+// Component for project details page
+function ProjectDetails() {
+  const { folderName } = useParams<{ folderName: string }>();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,58 +31,21 @@ export default function App() {
     const initializeProjects = async () => {
       const loadedProjects = await loadProjects();
       setProjects(loadedProjects);
+
+      if (folderName) {
+        const project = loadedProjects.find(p => p.id === folderName);
+        setSelectedProject(project || null);
+      }
     };
 
     initializeProjects();
-    // Don't auto-select any project - let user choose from main page
-  }, []);
+  }, [folderName]);
 
   useEffect(() => {
     if (projects.length > 0) {
       saveProjects();
     }
   }, [projects]);
-
-  const handleSelectProject = (project: Project) => {
-    setSelectedProject(project);
-  };
-
-  const handleCreateProject = async (
-    name: string,
-    type: 'tsx' | 'jsx',
-    customId?: number
-  ) => {
-    try {
-      const newProject = await createNewProject(name, type, customId);
-      const updatedProjects = await loadProjects(); // Reload from registry
-      setProjects(updatedProjects);
-      setSelectedProject(newProject);
-    } catch (error) {
-      alert(
-        error instanceof Error ? error.message : 'Failed to create project'
-      );
-    }
-  };
-
-  const handleDeleteProject = async (projectId: string) => {
-    if (confirm('Are you sure you want to delete this project?')) {
-      try {
-        await deleteProject(projectId);
-        // Update local state after successful deletion
-        setProjects(prev => prev.filter(p => p.id !== projectId));
-        if (selectedProject?.id === projectId) {
-          const remainingProjects = projects.filter(p => p.id !== projectId);
-          setSelectedProject(
-            remainingProjects.length > 0 ? remainingProjects[0] || null : null
-          );
-        }
-      } catch (error) {
-        alert(
-          error instanceof Error ? error.message : 'Failed to delete project'
-        );
-      }
-    }
-  };
 
   const handleCodeChange = async (
     field: 'tsxContent' | 'cssContent',
@@ -106,138 +73,225 @@ export default function App() {
     }
   };
 
-  const renderMainContent = () => {
-    if (!selectedProject) {
-      return (
-        <div className="main-content">
-          <div className="header">
-            <h1>Frontend Challenges</h1>
-            <button
-              className="btn-primary"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus size={16} />
-              New Project
-            </button>
-          </div>
-
-          <ProjectTable
-            projects={projects}
-            selectedProject={selectedProject}
-            onSelectProject={handleSelectProject}
-            onDeleteProject={handleDeleteProject}
-          />
-        </div>
+  const handleCreateProject = async (
+    name: string,
+    type: 'tsx' | 'jsx',
+    customId?: number
+  ) => {
+    try {
+      const newProject = await createNewProject(name, type, customId);
+      const updatedProjects = await loadProjects(); // Reload from registry
+      setProjects(updatedProjects);
+      navigate(`/${newProject.id}`);
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to create project'
       );
     }
-
-    const showCodeEditors = viewMode === 'all' || viewMode === 'code-only';
-    const showPreview = viewMode === 'all' || viewMode === 'preview-only';
-
-    return (
-      <div className="main-content">
-        <div className="header">
-          <div className="header-left">
-            <button
-              className="btn-secondary"
-              onClick={() => setSelectedProject(null)}
-            >
-              ← Back to Projects
-            </button>
-            <h1>{selectedProject.name}</h1>
-          </div>
-
-          <div className="header-right">
-            <div className="view-toggles">
-              <button
-                className={`toggle-btn ${viewMode === 'all' ? 'active' : ''}`}
-                onClick={() => setViewMode('all')}
-                title="Show all panels"
-              >
-                <Monitor size={16} />
-                All
-              </button>
-              <button
-                className={`toggle-btn ${viewMode === 'code-only' ? 'active' : ''}`}
-                onClick={() => setViewMode('code-only')}
-                title="Show code editors only"
-              >
-                <Code size={16} />
-                Code
-              </button>
-              <button
-                className={`toggle-btn ${viewMode === 'preview-only' ? 'active' : ''}`}
-                onClick={() => setViewMode('preview-only')}
-                title="Show preview only"
-              >
-                <Eye size={16} />
-                Preview
-              </button>
-            </div>
-
-            <button
-              className="btn-primary"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus size={16} />
-              New Project
-            </button>
-          </div>
-        </div>
-
-        <div className="editor-layout">
-          <PanelGroup direction="horizontal" className="panel-group">
-            {showCodeEditors && (
-              <>
-                <Panel defaultSize={33} minSize={20}>
-                  <CodeEditor
-                    value={selectedProject.tsxContent}
-                    language="typescript"
-                    onChange={value => handleCodeChange('tsxContent', value)}
-                    title={`Component (${selectedProject.type})`}
-                  />
-                </Panel>
-                <PanelResizeHandle className="panel-resize-handle" />
-                <Panel defaultSize={33} minSize={20}>
-                  <CodeEditor
-                    value={selectedProject.cssContent}
-                    language="css"
-                    onChange={value => handleCodeChange('cssContent', value)}
-                    title="Styles (CSS)"
-                  />
-                </Panel>
-                {showPreview && (
-                  <PanelResizeHandle className="panel-resize-handle" />
-                )}
-              </>
-            )}
-
-            {showPreview && (
-              <Panel defaultSize={showCodeEditors ? 34 : 100} minSize={20}>
-                <div className="preview-panel">
-                  <div className="editor-header">
-                    <h3>Live Preview</h3>
-                    <span className="language-badge">PREVIEW</span>
-                  </div>
-                  <LiveRenderer project={selectedProject} />
-                </div>
-              </Panel>
-            )}
-          </PanelGroup>
-        </div>
-      </div>
-    );
   };
 
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
+  if (!selectedProject) {
+    return <div>Loading...</div>;
+  }
+
+  const showCodeEditors = viewMode === 'all' || viewMode === 'code-only';
+  const showPreview = viewMode === 'all' || viewMode === 'preview-only';
+
   return (
-    <div className="app">
-      {renderMainContent()}
+    <div className="main-content">
+      <div className="header">
+        <div className="header-left">
+          <button className="btn-secondary" onClick={() => navigate('/')}>
+            ← Back to Projects
+          </button>
+          <h1>{selectedProject.name}</h1>
+          <button
+            className="btn-secondary refresh-btn"
+            onClick={handleRefresh}
+            title="Refresh page"
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+
+        <div className="header-right">
+          <div className="view-toggles">
+            <button
+              className={`toggle-btn ${viewMode === 'all' ? 'active' : ''}`}
+              onClick={() => setViewMode('all')}
+              title="Show all panels"
+            >
+              <Monitor size={16} />
+              All
+            </button>
+            <button
+              className={`toggle-btn ${viewMode === 'code-only' ? 'active' : ''}`}
+              onClick={() => setViewMode('code-only')}
+              title="Show code editors only"
+            >
+              <Code size={16} />
+              Code
+            </button>
+            <button
+              className={`toggle-btn ${viewMode === 'preview-only' ? 'active' : ''}`}
+              onClick={() => setViewMode('preview-only')}
+              title="Show preview only"
+            >
+              <Eye size={16} />
+              Preview
+            </button>
+          </div>
+
+          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+            <Plus size={16} />
+            New Project
+          </button>
+        </div>
+      </div>
+
+      <div className="editor-layout">
+        <PanelGroup direction="horizontal" className="panel-group">
+          {showCodeEditors && (
+            <>
+              <Panel defaultSize={33} minSize={20}>
+                <CodeEditor
+                  value={selectedProject.tsxContent}
+                  language="typescript"
+                  onChange={value => handleCodeChange('tsxContent', value)}
+                  title={`Component (${selectedProject.type})`}
+                />
+              </Panel>
+              <PanelResizeHandle className="panel-resize-handle" />
+              <Panel defaultSize={33} minSize={20}>
+                <CodeEditor
+                  value={selectedProject.cssContent}
+                  language="css"
+                  onChange={value => handleCodeChange('cssContent', value)}
+                  title="Styles (CSS)"
+                />
+              </Panel>
+              {showPreview && (
+                <PanelResizeHandle className="panel-resize-handle" />
+              )}
+            </>
+          )}
+
+          {showPreview && (
+            <Panel defaultSize={showCodeEditors ? 34 : 100} minSize={20}>
+              <div className="preview-panel">
+                <div className="editor-header">
+                  <h3>Live Preview</h3>
+                  <span className="language-badge">PREVIEW</span>
+                </div>
+                <LiveRenderer project={selectedProject} />
+              </div>
+            </Panel>
+          )}
+        </PanelGroup>
+      </div>
 
       <NewProjectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreateProject={handleCreateProject}
       />
+    </div>
+  );
+}
+
+// Component for projects list page
+function ProjectList() {
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const initializeProjects = async () => {
+      const loadedProjects = await loadProjects();
+      setProjects(loadedProjects);
+    };
+
+    initializeProjects();
+  }, []);
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      saveProjects();
+    }
+  }, [projects]);
+
+  const handleSelectProject = (project: Project) => {
+    navigate(`/${project.id}`);
+  };
+
+  const handleCreateProject = async (
+    name: string,
+    type: 'tsx' | 'jsx',
+    customId?: number
+  ) => {
+    try {
+      const newProject = await createNewProject(name, type, customId);
+      const updatedProjects = await loadProjects(); // Reload from registry
+      setProjects(updatedProjects);
+      navigate(`/${newProject.id}`);
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : 'Failed to create project'
+      );
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (confirm('Are you sure you want to delete this project?')) {
+      try {
+        await deleteProject(projectId);
+        // Update local state after successful deletion
+        setProjects(prev => prev.filter(p => p.id !== projectId));
+      } catch (error) {
+        alert(
+          error instanceof Error ? error.message : 'Failed to delete project'
+        );
+      }
+    }
+  };
+
+  return (
+    <div className="main-content">
+      <div className="header">
+        <h1>Frontend Challenges</h1>
+        <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+          <Plus size={16} />
+          New Project
+        </button>
+      </div>
+
+      <ProjectTable
+        projects={projects}
+        selectedProject={null}
+        onSelectProject={handleSelectProject}
+        onDeleteProject={handleDeleteProject}
+      />
+
+      <NewProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreateProject={handleCreateProject}
+      />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <div className="app">
+      <Routes>
+        <Route path="/" element={<ProjectList />} />
+        <Route path="/:folderName" element={<ProjectDetails />} />
+      </Routes>
     </div>
   );
 }

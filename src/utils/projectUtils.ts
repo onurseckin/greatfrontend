@@ -16,9 +16,10 @@ export const loadProjects = async (): Promise<Project[]> => {
         const tsxContent = await fileSystem.readFile(tsxPath);
         const cssContent = await fileSystem.readFile(cssPath);
 
-        // Try to read meta.ts for dates
+        // Try to read meta.ts for dates and folderName
         let createdAt = new Date();
         let updatedAt = new Date();
+        let folderName = projectInfo.id; // fallback to id
 
         try {
           const metaPath = `${projectInfo.folderPath}/meta.ts`;
@@ -26,9 +27,11 @@ export const loadProjects = async (): Promise<Project[]> => {
 
           const createdMatch = metaContent.match(/createdAt: '([^']+)'/);
           const updatedMatch = metaContent.match(/updatedAt: '([^']+)'/);
+          const folderNameMatch = metaContent.match(/folderName: '([^']+)'/);
 
           if (createdMatch?.[1]) createdAt = new Date(createdMatch[1]);
           if (updatedMatch?.[1]) updatedAt = new Date(updatedMatch[1]);
+          if (folderNameMatch?.[1]) folderName = folderNameMatch[1];
         } catch (e) {
           console.warn(`Could not read meta.ts for ${projectInfo.name}:`, e);
         }
