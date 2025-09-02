@@ -13,7 +13,9 @@ export default [
       'node_modules',
       '**/node_modules/**',
       'apps/**/vite.config.ts',
-      'vite.config.ts'
+      'vite.config.ts',
+      '.nx',
+      '**/.nx/**'
     ]
   },
   {

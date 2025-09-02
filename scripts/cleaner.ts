@@ -69,8 +69,12 @@ const CLEAN_TARGETS = [
   'apps/*/*.tmp',
   'apps/*/*.temp',
 
-  // NX cache
+  // NX cache and artifacts
   '.nx',
+  '**/.nx/**',
+  'nx.json.bak',
+  'apps/*/.nx',
+  'apps/*/nx.json.bak',
 
   // Vite cache
   'apps/frontend/.vite',
@@ -132,7 +136,17 @@ async function main() {
     await cleanTarget(target);
   }
 
-  // Step 2: Clean any remaining cache directories
+  // Step 2: Clean Nx cache using CLI
+  log('🧹 Cleaning Nx cache using CLI...', 'info');
+  try {
+    await $`npx nx reset`.quiet();
+    log('Nx cache reset successfully', 'success');
+  } catch (error) {
+    log(`Warning: Could not reset Nx cache via CLI: ${error}`, 'warn');
+    log('Continuing with manual cleanup...', 'info');
+  }
+
+  // Step 3: Clean any remaining cache directories
   log('🗑️  Cleaning additional cache directories...', 'info');
   try {
     await $`find . -name "*.tsbuildinfo" -delete`.quiet();
@@ -142,7 +156,7 @@ async function main() {
     log(`Warning: Could not clean some cache files: ${error}`, 'warn');
   }
 
-  // Step 3: Reinstall dependencies for all projects
+  // Step 4: Reinstall dependencies for all projects
   log('📦 Installing fresh dependencies...', 'info');
   try {
     // Install root dependencies
